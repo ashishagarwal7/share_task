@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  #service name
+  mosquitto:
+    build: ./mosquitto     #path for docker build
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.config
+
+  #service name
+  mqtt_client:
+    build: ./mqtt_client   #path for docker build
+    depends_on:
+      - mosquitto
+    container_name: mqtt_client
+
+    volumes:
+      - ./mqtt_client/events.db:/app/events.db
+
+  #service name
+  rest_api:
+    build: ./rest_api     #path for docker build
+    depends_on:
+      - mqtt_client
+    container_name: rest_api
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./mqtt_client/events.db:/app/events.db
